@@ -1,19 +1,20 @@
 import { MongoClient } from "mongodb";
+import { NextResponse } from "next/server";
+
 
 const uri = `mongodb+srv://${process.env.mongodb_username}:${process.env.mongodb_password}@${process.env.mongodb_clustername}.zjjevax.mongodb.net/${process.env.mongodb_database}?retryWrites=true&w=majority`;
 
-async function handler(req, res) {
-  if (req.method === "POST") {
-    const data = req.body;
+export async function GET(request, { params }) {
+    console.log(process.env.mongodb_collection);
+    console.log(uri);
     const client = await MongoClient.connect(uri);
     const db = client.db();
-
     const userCollection = db.collection(process.env.mongodb_collection);
-
-    const result = await userCollection.insertOne(data);
+    console.log(userCollection);
+    const result = await userCollection.find().toArray();
     client.close();
-    res.status(201).json({ message: "user inserted!" });
-  }
+    return NextResponse.json(
+      { message: "User found", result },
+      { status: 201 }
+    );
 }
-
-export default handler;
